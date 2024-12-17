@@ -36,6 +36,15 @@ class Search extends React.Component
         );
     }
 
+    firstPage = () => 
+    {
+        this.setState
+        (
+            () => ({page:1}),
+            () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page)}
+        )
+    }
+
     prevPage = () => 
     (
         this.setState
@@ -49,7 +58,7 @@ class Search extends React.Component
     {            
             this.setState
             (
-                () =>({page: this.state.page + 1}),
+                () =>({page: this.state.page < Math.ceil(this.props.totalMovies / 10) ? this.state.page + 1 : this.state.page}),
                 () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page);
                     console.log("Search.js");                
                     console.log(this.state.page);
@@ -58,10 +67,19 @@ class Search extends React.Component
             
     }
 
+    lastPage = () => 
+        {
+            this.setState
+            (                
+                () => ({page: Math.ceil(this.props.totalMovies / 10)}),
+                () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page)}
+            )
+        }
+
     setPage = (pageNumber) => 
     {
         this.setState
-        (
+        (            
             () => ({page:pageNumber}),
             () => (this.props.searchMovie(this.state.search, this.state.type, this.state.page))
         )
@@ -71,7 +89,8 @@ class Search extends React.Component
     {
         console.log("search render");
         let moviesPerPage = 10;
-        let totalPages    = this.props.totalMovies / moviesPerPage;
+        let totalPages    = Math.ceil(this.props.totalMovies / moviesPerPage);
+        //this.setState({totalPages : totalPages});
         let lastIndex     = totalPages <= 10 ? totalPages + 1 : this.state.page + moviesPerPage;
         let firstIndex    = totalPages <= 10 ? lastIndex - moviesPerPage + lastIndex + 1 : lastIndex - moviesPerPage;
         let pageNumbers = [];
@@ -133,7 +152,11 @@ class Search extends React.Component
                     </button>                    
                 </div> 
                 <div className='navigator'>
-                    <button className='btn' onClick={this.prevPage}>Previous</button>
+                    <div className='main_buttons'>
+                        <button className='btn' onClick={this.firstPage}>First</button>
+                        <button className='btn' onClick={this.prevPage}>Previous</button>
+                    </div>
+                    
 
                     <div className="items">
                     {
@@ -155,9 +178,17 @@ class Search extends React.Component
                         )
                     }
                     </div>
-
-                    <button className='btn' onClick={this.nextPage}>Next</button>
-                </div>               
+                    <div className='main_buttons'>
+                        <button className='btn' onClick={this.nextPage}>Next</button>
+                        <button className='btn' onClick={this.lastPage}>Last</button>
+                    </div>
+                    
+                </div>  
+                <div className="debug">
+                    {this.state.page}                    
+                    <br/>
+                    {totalPages}
+                </div>             
             </>
         )
     }    
