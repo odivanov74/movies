@@ -28,3 +28,29 @@
     box-shadow: inset 1px 1px 4px 2px #FFF;
     cursor: pointer;
 }
+
+.radio{
+    margin: 20px 50px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.radio input{
+    width: 20px;
+    height: 20px;
+}
+
+.radio span{
+    font-size: 24px;
+    margin-right: 60px;
+}
+
+.navigator{
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.items .btn{
+    width: 44px;
+}
