@@ -3,19 +3,33 @@ import './Search.css';
 
 class Search extends React.Component
 {
-    // constructor(props)
-    // {
-    //     super(props);
-    //     //this.setState({totalPages:props.total})
-    //     this.state.totalPages = props.total/10;
-    // }
+    constructor(props)
+    {
+        super(props);
+        
+        this.state = 
+        {
+            search: this.props.lastSearch,
+            type: this.props.filter,
+            page: this.props.currentPage,            
+            totalItems: this.props.totalItems,
+            totalPages: Math.ceil(this.props.totalItems / this.state.itemsPerPage),
+            lastIndex:  this.props.currentPage + 3 > Math.ceil(this.props.totalItems / this.state.itemsPerPage) ? this.props.totalPages : this.props.currentPage + 4,
+            firstIndex: this.props.currentPage - 3 > 1 ? this.props.currentPage - 3 : 1            
+        };
+        console.log("Search.js constructor");  
+    }
 
     state = 
     {
-        search: "terminator",
+        search: "",
         type: "all",
-        page:1,
-        totalPages:0
+        page:0,
+        itemsPerPage:10,
+        totalItems: 0,
+        totalPages:0,
+        lastIndex:0,
+        firstIndex:0,        
     }
 
     handleKey = (event) =>
@@ -23,7 +37,7 @@ class Search extends React.Component
         if(event.key === 'Enter')
         {
             console.log("Enter was pressed");
-            this.props.searchMovie(this.state.search, this.state.type);
+            this.props.searchMovie(this.state.search, this.state.type);            
         }        
     }
 
@@ -32,9 +46,9 @@ class Search extends React.Component
         this.setState
         (
             () => ({type:event.target.dataset.type}),
-            () => {this.props.searchMovie(this.state.search, this.state.type);}
+            () => {this.props.searchMovie(this.state.search, this.state.type, 1);}
         );
-    }
+    }    
 
     firstPage = () => 
     {
@@ -49,29 +63,25 @@ class Search extends React.Component
     (
         this.setState
         (
-            ()=>(this.state.page > 1 ? {page: this.state.page - 1} : {page:1}),
+            () => (this.state.page > 1 ? {page: this.state.page - 1} : {page:1}),
             () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page)}
         )
     )
 
     nextPage = () => 
     {            
-            this.setState
-            (
-                () =>({page: this.state.page < Math.ceil(this.props.totalMovies / 10) ? this.state.page + 1 : this.state.page}),
-                () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page);
-                    console.log("Search.js");                
-                    console.log(this.state.page);
-                }
-            )
-            
+        this.setState
+        (            
+            () => ({page: this.state.page < Math.ceil(this.state.totalItems  / 10) ? this.state.page + 1 : this.state.page}),
+            () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page)}
+        );           
     }
 
     lastPage = () => 
         {
             this.setState
             (                
-                () => ({page: Math.ceil(this.props.totalMovies / 10)}),
+                () => ({page: Math.ceil(this.state.totalItems  / 10)}),
                 () => {this.props.searchMovie(this.state.search, this.state.type, this.state.page)}
             )
         }
@@ -87,15 +97,10 @@ class Search extends React.Component
 
     render()
     {
-        console.log("search render");
-        let moviesPerPage = 10;
-        let totalPages    = Math.ceil(this.props.totalMovies / moviesPerPage);
-        //this.setState({totalPages : totalPages});
-        let lastIndex     = totalPages <= 10 ? totalPages + 1 : this.state.page + moviesPerPage;
-        let firstIndex    = totalPages <= 10 ? lastIndex - moviesPerPage + lastIndex + 1 : lastIndex - moviesPerPage;
+        console.log("search render");        
         let pageNumbers = [];
 
-        for(let i = 0; i <= totalPages; i++)
+        for(let i = 0; i <= this.state.totalPages; i++)
         {
             pageNumbers.push(i);
         } 
@@ -147,7 +152,12 @@ class Search extends React.Component
                         value={this.state.search}
                         onChange={(e) => this.setState({search: e.target.value})}
                         onKeyDown={this.handleKey}/>
-                    <button className='btn' onClick={() => this.props.searchMovie(this.state.search, this.state.type)}>
+                    <button className='btn' 
+                        onClick={() => 
+                        {
+                            this.props.searchMovie(this.state.search, this.state.type, 1);
+                            this.setState({totalItems: this.props.totalItems});
+                        }}>
                         Search
                     </button>                    
                 </div> 
@@ -161,7 +171,7 @@ class Search extends React.Component
                     <div className="items">
                     {
                         pageNumbers
-                        .slice(firstIndex,lastIndex)
+                        .slice(this.state.firstIndex, this.state.lastIndex)
                         .map
                         (
                             (el, index) =>
@@ -184,11 +194,17 @@ class Search extends React.Component
                     </div>
                     
                 </div>  
-                <div className="debug">
+                {/* <div className="debug">
                     {this.state.page}                    
                     <br/>
-                    {totalPages}
-                </div>             
+                    {this.state.totalItems}
+                    <br/>
+                    {this.state.totalPages}
+                    <br/>
+                    {this.state.firstIndex}
+                    <br/>
+                    {this.state.lastIndex}
+                </div>              */}
             </>
         )
     }    
